@@ -15,6 +15,14 @@ The graph should work for any job, for example a software developer, a chartered
 
 Two ideas come from computerized adaptive testing (CAT). Each technical question has a *difficulty score*, and the candidate has an *estimated skill level* for each skill, which changes after every answer.
 
+## How to read the questions
+
+* Names in `code` are placeholders for a specific item: `Session` (an interview), `n` (a turn number), `JobDesc` (a job description), `CV`, `Profession`, `Skill`, `Question`, `FollowUp` (a follow-up question), `Rubric`, `Criterion` (a rubric criterion), `Type` (an interview type), `Difficulty` (Easy, Medium or Hard) and `Band` (weak, acceptable or strong).
+* The expected answer says what kind of answer comes back and how many.
+* ★ marks our 25 core questions. The others add detail or check the data.
+* Some words, like *covered* or *available*, have a fixed meaning. They are listed under [Key terms](#key-terms) at the end, and the way the next question is picked is explained in [How the next question is picked](#how-the-next-question-is-picked).
+
+
 ## Interview setup
 
 | # | Competency question | Expected answer |
@@ -22,7 +30,7 @@ Two ideas come from computerized adaptive testing (CAT). Each technical question
 | 1 ★ | What interview type, difficulty level and length was `Session` set up with? | One type, one difficulty level, a number of minutes |
 | 2 | Who is the candidate in `Session`? | One person |
 | 3 ★ | Which job description and CV does `Session` use? | One job description and at most one CV |
-| 4 ★ | Which skills does the job description used in `Session` require? | A list of skills |
+| 4 ★ | Which skills does the job description in `Session` ask for, and how important is each one? | A list of skills, each with an importance rating from 1 to 5 |
 | 5 | Which interview types use estimated skill levels? | A list of interview types |
 | 6 | What base level does difficulty level `Difficulty` set? | One number, the same for every skill |
 
@@ -33,8 +41,9 @@ Two ideas come from computerized adaptive testing (CAT). Each technical question
 | 7 | Which profession is `JobDesc` for? | One profession |
 | 8 | Which fields is `Profession` associated with? | One or more fields |
 | 9 ★ | Which skills does `JobDesc` rate as most important, and what are their ratings? | One or more skills, each with its rating |
-| 10 | What is the importance rating of `Skill` in `JobDesc`? | A number from 1 to 5, or none if `JobDesc` does not require `Skill` |
+| 10 | How important is `Skill` in `JobDesc`? | A rating from 1 to 5, or none if `JobDesc` does not ask for `Skill` |
 | 11 ★ | Which skills required by the job description in `Session` are mentioned in the CV used in `Session`? | A list of skills; empty if there is no CV |
+| 11a | Which skills does `CV` mention? | A list of skills, including ones the job does not ask for. The starting level of any skill depends on this (question 56) |
 | 12 ★ | Which skills required by the job description in `Session` have no question of the chosen interview type in the question bank? | A list of skills; empty if every required skill has at least one |
 
 ## Skills and how they relate
@@ -84,12 +93,12 @@ Two ideas come from computerized adaptive testing (CAT). Each technical question
 
 | # | Competency question | Expected answer |
 |---|---|---|
-| 41 ★ | What band, if any, did the latest answer in `Session` get? | Weak, acceptable or strong; none if there is no answer yet, the latest answer is to an opening question, or the interview type has no bands |
+| 41 ★ | Was the latest answer in `Session` weak, acceptable or strong? | One band; none if nothing has been answered yet, the latest answer was to an opening question, or the interview type has no bands |
 | 42 | What are the weak and strong score thresholds for `Type`? | Two numbers, or none if the type has no bands |
 | 43 ★ | For `Type`, which rule comes first after an answer in `Band`? | One rule; none if the type has no bands |
 | 44 | For `Type`, which rule applies after an answer with a low criterion score? | One rule; none if the type has no such rule |
 | 45 | Which rules does `Type` use, in order? | An ordered list of rules |
-| 46 ★ | If `Session` should not stop, which question comes next, and which rule picked it? | One question and one rule (see [How the next question is chosen](#how-the-next-question-is-chosen)); none if `Session` should stop (question 55) or no rule can pick an available question |
+| 46 ★ | If `Session` is not over, which question comes next, and which rule picked it? | One question and one rule (see [How the next question is chosen](#how-the-next-question-is-chosen)); none if `Session` should stop (question 55) or no rule can pick an available question |
 | 47 | Which unasked questions of the chosen interview type in `Session` are expected to take longer than the minutes left? | A list of questions |
 | 48 | After a weak answer to the technical question `Question`, which available technical questions on the same skill have a lower difficulty score and are closest in score to `Question`? | One or more questions; none if no such question is available |
 | 49 ★ | After a weak answer on `Skill`, which direct prerequisites of `Skill` are not covered yet in `Session` and have an available question? | A list of skills |
@@ -151,3 +160,80 @@ These questions check that the data agrees with itself. Questions 74, 75, 77 and
 | 76 | Which technical answers are marked correct but scored weak, or marked incorrect but scored strong? | A list of answers to review for a possible scoring mistake; usually empty. Partly correct answers are not checked |
 | 77 | Are the turns in `Session` numbered 1, 2, 3 and so on, in the order the questions were asked, with no repeats or gaps? | Yes or no |
 | 78 | Which skills are their own prerequisite, directly or through a chain? | A list of skills; should be empty |
+
+
+#    How the next question is chosen
+
+Before each turn, the interview stops if time is up or there are no available questions left. Otherwise, the rules are tried in sequence, and the first successful rule will select the question. If none is successful, then the interview ends.
+
+**The rules, in order:**
+
+1. **Opening.** Turn 1 only. Warm-up question such as "Tell me about yourself." No skill is tested and it makes no difference to any estimate, and the following guidelines are ignorant to its answer.
+2. **Rules that react to the last answer.**
+   * **Technical**
+        * after a weak answer: **easier question** (same main skill, lower difficulty) and **prerequisite check** (a direct prerequisite not covered yet).
+        * after a strong answer: **follow-up** (a follow-up of the last question) and **harder question** (same main skill, higher difficulty).
+   * **Behavioral and HR**
+        * after a low criterion score: **criterion follow-up** (a follow-up about that criterion).
+3. **New skill.** The most important required skill not covered yet.
+4. **Revisit.** The required skill with the fewest answered questions so far. This is what keeps the interview going after every required skill has been covered.
+
+The rule will consider only those criteria or skills that still have one or more questions. It will select among those choices in the following way:
+
+| Rule | How it chooses |
+|---|---|
+| Easier / Harder Question | Next in terms of difficulty after the previous problem, and then next to its current estimate |
+| Prerequisite Check | The prerequisite with the lowest estimate (or if it has not yet been estimated, its initial level of estimate), then its simplest available question |
+| Follow-Up | Most similar in difficulty to the current estimate of the skill |
+Criterion Follow-Up | The worst performing criterion that has a possible follow-up |
+| New Skill | The most important skill, for technical questions, the one that is close in difficulty to this skill. For Behavioral and HR, the one of the same difficulty or closest level |
+| Revisit | Fewest questions answered (a question is counted once for each of the skills it addresses), then most important, then chosen for a new skill 
+
+In case any tie remains, the sequence of questions in the fixed question bank order resolves the issue, and the same circumstances lead to the same question each time. However, when answering the competency questions, the ties are preserved; "most," "lowest" or "closest" question returns all ties.
+
+Just because all the skills have been asked about doesn’t mean the interview is finished. However, it’s important to note that an interview isn’t necessarily carried out until the time limit runs out – if there aren’t any more questions relating to any of the skills and no rules based on the previous answer can select another question, then it stops. That is on purpose, since the interview is about the skills the job asks for.
+
+## Key terms
+
+**Skills**
+
+* **Skill:** test anything an interview can test. A *field-specific* skill is specific to that field only (recursion, tax accounting, ECG reading). A *general* skill is not (communication, teamwork).
+* **Profession:** any kind of job, not only licensed professions.
+* **Required skill:** skill listed on the job description of the session. The importance level is rated between 1 (the least) to 5 (the most). In case of a tie for the highest rating, they are all considered as “the most important.”
+* **Testable required skill:** is one of the compulsory skills and will have at least one question from the interview section of the current session. It doesn’t mean that the questions are available right now, they may all have been asked or be too long.
+* **Covered skill:** a skill that is tested through a question that has already been answered before. Testing a portion of a skill does not test the entire skill.
+* **Prerequisite:** a skill that must be learned before another, such as function calls before recursion. **Prerequisites chain:** if variables appear before function calls, then they will appear before recursion.
+* **Subskill:** a minor skill which is a subset of a major skill, for example, the joins in SQL. But this is not the same thing as a prerequisite since the function call comes before recursion but does not constitute it.
+* **Required in a field:** a skill is necessary in a particular field if it is a requirement of any job specification for any job in the field.
+
+**Questions**
+
+* **Main Skill:** the one skill a question tests primarily. The rules reacting to the answer make use of the primary skill tested by the previous question. However, a answer does get updated for all the skills involved in the question.
+* **Opening Question:** a warm-up question, marked as such in the bank. Applicable to all interviews, tests no skill. Scoring based on its rubric, yet not given a band and does not affect any estimate.
+* **Field of a question:** fields of the field-related skills it tests. A question testing general skills has no field.
+* **Difficulty score:** is a figure that applies to every technical question and is used to determine the difficulty of a question. It is measured using the same scale as skill ratings, hence they can be compared. The behavioral and HR questions have no difficulty score.
+* **Difficulty Level:** Easy, Medium or Hard. In technical questions, it is based on the difficulty score, which has two cut-off points. For non-technical questions, the level is assigned directly.
+* **Closest / Best Fit:** the lowest absolute difference between the difficulty score of a question and some other number on the same scale (difficulty score or its estimation).
+* **Available question:** one that has not been asked in this session of the selected type of interview, and which should be answered within the time left. Opening questions are available prior to the first answer.
+
+**Answers**
+
+* **Score and criterion score:** the total score given to the answer and the scores for each criterion on the rubric, both ranging from 0 to 1.
+* **Average criterion score:** Average of scores of criterion among the answers to the criterion in a session.
+* **Band:** weak (below weak threshold), strong (at or above the strong threshold) and acceptable (between weak and strong thresholds). Only technical answers earn a band, and different thresholds are set for each type of interview
+* **Low criterion score:** a criterion score below the threshold set by its rubric.
+* **Correct, partly correct, incorrect:** a tag on each answer indicating whether the essence of the answer (the solution, fact, or example required) is correct. This is independent of the score; thus, a correct answer may receive a low score on other parameters such as clarity.
+* **Latest answer:** the answer with the highest turn number.
+
+**Time**
+
+* **Minutes passed:** exact time that has passed since the beginning of the interview, measured in seconds with no rounding off whatsoever; thus, 1.5 minutes to go is never counted as 2.
+* **Expected minutes:** how long each question takes. Used only to determine whether the question still is valid, never to calculate the time taken.
+
+**Skill estimates (Technical only)**
+
+* **Estimated level:** a value indicating the ability of the candidate with respect to a specific skill on the same scale as difficulty values. The difference between the estimate and the difficulty value is not a probability but simply ranks the items.
+* **Assessed skill:** a skill for which the session keeps an estimate. Required skills will always be assessed right from the beginning. Any other skill (such as a prerequisite skill) will become an assessed skill if a question based on that skill is selected.
+* **Starting level:** the base level determined by the difficulty of the session, plus a fixed CV raise if the skill is mentioned in the CV. This is applicable for all skills mentioned in the CV, regardless of whether or not they are required.
+* **Update:** after each answer, every skill the question tests gets a new estimate, which replaces the old one (it may stay the same).
+* **Standard error:** how unsure an estimate is. Smaller means more precise.
