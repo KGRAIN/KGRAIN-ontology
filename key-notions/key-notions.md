@@ -2,7 +2,7 @@
 
 The following list identifies the key notions of KGRAIN, which need to be represented by the knowledge graph in order to answer the [competency questions](../competency-questions/competency-questions.md)(CQs). 
 
-As running examples, we will consider two professions: **software developer** and **physician**. Both of them belong to different spheres and possess open-ended questions sets. There are common skills like communication in both professions.
+As running examples, we will consider two professions: **software developer** and **physician**. They belong to very different fields, and both have open question datasets. There are common skills like communication in both professions.
 
 The notions are listed in the order they first appear in the CQs. Source datasets are optional for this project and are filled in where an existing dataset fits
 

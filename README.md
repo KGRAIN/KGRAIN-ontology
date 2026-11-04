@@ -17,7 +17,7 @@ It is not limited to a particular career field or application. The same ontology
 
 | Folder | Contents |
 |---|---|
-| [competency-questions](competency-questions.md) | The questions our knowledge graph should be able to answer, with how the next question is picked and the key terms |
+| [competency-questions](competency-questions/competency-questions.md) | The questions our knowledge graph should be able to answer, with how the next question is picked and the key terms |
 
 The ontology, schema diagrams and example data will be added as the project goes on.
 
